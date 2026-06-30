@@ -1,0 +1,15 @@
+proyecto_desercion/
+│
+├── main.py
+│
+├── models/
+│   ├── __init__.py
+│   ├── estudiante.py
+│   ├── generador_datos.py
+│   ├── preprocesador.py
+│   ├── arbol_decision.py
+│   ├── apriori.py
+│   └── sistema.py
+│
+└── resultados/
+    └── (aquí se guardarán los reportes)

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Predicción de Deserción</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="manifest" href="static/manifest.json">
+    <meta name="theme-color" content="#1a1a2e">
+</head>
+<body>
+    <!-- ═══ HEADER ═══ -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="header-icon">🎓</span>
+                <div>
+                    <h1 class="header-title">Predicción de Deserción</h1>
+                    <p class="header-subtitle">Universitaria · Escala 0-20</p>
+                </div>
+            </div>
+            <button class="menu-btn" id="menuBtn" aria-label="Menú">☰</button>
+        </div>
+        <!-- KPIs -->
+        <div class="kpi-row" id="kpiRow">
+            <div class="kpi-card">
+                <span class="kpi-label">👥 Total</span>
+                <span class="kpi-value" id="kpiTotal">0</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">⚠️ En Riesgo</span>
+                <span class="kpi-value danger" id="kpiRiesgo">0</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">💡 Estado</span>
+                <span class="kpi-value warning" id="kpiEstado">Inactivo</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ═══ SIDEBAR ═══ -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-icon">🎓</span>
+            <h2>Menú Principal</h2>
+            <button class="close-btn" id="closeBtn">✕</button>
+        </div>
+        
+        <div class="sidebar-section">
+            <p class="section-title">📊 DATOS</p>
+            <button class="sidebar-btn success" onclick="generarDatos()">
+                <span>📊</span> Generar Datos Sintéticos
+            </button>
+            <button class="sidebar-btn teal" onclick="document.getElementById('excelInput').click()">
+                <span>📁</span> Cargar Excel Real
+            </button>
+            <input type="file" id="excelInput" accept=".xlsx" style="display:none" onchange="cargarExcel(this)">
+        </div>
+
+        <div class="sidebar-section">
+            <p class="section-title">📈 ANÁLISIS</p>
+            <button class="sidebar-btn primary" onclick="mostrarDashboard()">
+                <span>📈</span> Dashboard Estadísticas
+            </button>
+            <button class="sidebar-btn purple" onclick="mostrarListaRiesgo()">
+                <span>⚠️</span> Lista en Riesgo
+            </button>
+        </div>
+
+        <div class="sidebar-section">
+            <p class="section-title">🔍 DIAGNÓSTICO</p>
+            <button class="sidebar-btn orange" onclick="mostrarBusqueda()">
+                <span>🔍</span> Buscar Estudiante
+            </button>
+        </div>
+
+        <div class="sidebar-footer">
+            <p>v4.1 · App Móvil</p>
+        </div>
+    </nav>
+
+    <!-- ═══ OVERLAY ═══ -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- ═══ CONTENIDO PRINCIPAL ═══ -->
+    <main class="main-content" id="mainContent">
+        <!-- Pantalla de inicio -->
+        <div class="welcome-screen" id="welcomeScreen">
+            <div class="welcome-icon">🎓</div>
+            <h2>Sistema de Predicción de Deserción</h2>
+            <p>Seleccione una opción del menú para comenzar</p>
+            <div class="quick-actions">
+                <button class="action-card" onclick="generarDatos()">
+                    <span class="action-icon">📊</span>
+                    <span class="action-text">Generar Datos</span>
+                    <span class="action-desc">500 estudiantes sintéticos</span>
+                </button>
+                <button class="action-card" onclick="document.getElementById('excelInput').click()">
+                    <span class="action-icon">📁</span>
+                    <span class="action-text">Cargar Excel</span>
+                    <span class="action-desc">Datos reales desde archivo</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard -->
+        <div class="page" id="dashboardPage" style="display:none">
+            <div class="page-header">
+                <h2>📊 Dashboard de Estadísticas</h2>
+                <button class="btn-back" onclick="volverInicio()">← Volver</button>
+            </div>
+            <div class="dashboard-kpis" id="dashboardKpis"></div>
+            <div class="chart-container">
+                <canvas id="pieChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <canvas id="barChart"></canvas>
+            </div>
+            <div class="data-table" id="rangoTable"></div>
+        </div>
+
+        <!-- Lista en Riesgo -->
+        <div class="page" id="riesgoPage" style="display:none">
+            <div class="page-header">
+                <h2>⚠️ Estudiantes en Riesgo</h2>
+                <button class="btn-back" onclick="volverInicio()">← Volver</button>
+            </div>
+            <div class="search-box">
+                <input type="text" id="riesgoSearch" placeholder="Filtrar por nombre o cédula..." oninput="filtrarRiesgo()">
+            </div>
+            <div id="riesgoList"></div>
+        </div>
+
+        <!-- Búsqueda -->
+        <div class="page" id="busquedaPage" style="display:none">
+            <div class="page-header">
+                <h2>🔍 Buscar Estudiante</h2>
+                <button class="btn-back" onclick="volverInicio()">← Volver</button>
+            </div>
+            <div class="search-box large">
+                <input type="text" id="searchInput" placeholder="Nombre o cédula..." onkeyup="if(event.key==='Enter') buscarEstudiante()">
+                <button class="btn-search" onclick="buscarEstudiante()">🔍 Buscar</button>
+            </div>
+            <div id="searchResults"></div>
+        </div>
+
+        <!-- Diagnóstico -->
+        <div class="page" id="diagnosticoPage" style="display:none">
+            <div class="page-header">
+                <h2>👤 Perfil del Estudiante</h2>
+                <button class="btn-back" onclick="volverBusqueda()">← Volver</button>
+            </div>
+            <div id="diagnosticoContent"></div>
+        </div>
+
+        <!-- Cargando -->
+        <div class="loading" id="loading" style="display:none">
+            <div class="spinner"></div>
+            <p id="loadingText">Procesando...</p>
+        </div>
+    </main>
+
+    <!-- ═══ TOAST ═══ -->
+    <div class="toast" id="toast"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="static/js/app.js"></script>
+</body>
+</html>
