@@ -2,9 +2,6 @@
    SISTEMA DE PREDICCIÓN DE DESERCIÓN - APP ANDROID
    ═══════════════════════════════════════════════════════════ */
 
-// ─── CONFIGURACIÓN ──────────────────────────────────────────
-const API_URL = 'http://localhost:5000';
-
 // ─── INICIALIZACIÓN ─────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     // Verificar estado del servidor
@@ -20,7 +17,8 @@ async function verificarServidor() {
     const statusText = document.getElementById('statusText');
     
     try {
-        const response = await fetch(`${API_URL}/health`, {
+        // ✅ Usar ruta relativa (funciona en desarrollo y en APK)
+        const response = await fetch('/health', {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         });
@@ -60,7 +58,8 @@ async function enviarPrediccion(event) {
     };
     
     try {
-        const response = await fetch(`${API_URL}/predict`, {
+        // ✅ Usar ruta relativa
+        const response = await fetch('/predict', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -69,7 +68,8 @@ async function enviarPrediccion(event) {
         });
         
         if (!response.ok) {
-            throw new Error('Error en la predicción');
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Error en la predicción');
         }
         
         const resultado = await response.json();
