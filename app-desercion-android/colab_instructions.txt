@@ -1,0 +1,26 @@
+﻿# CELDA 1: Instalar Buildozer
+!pip install buildozer
+!pip install cython==0.29.33
+
+# CELDA 2: Configurar Android SDK/NDK
+!buildozer init
+
+# CELDA 3: Subir archivos (Ejecuta y sube tu proyecto cuando te lo pida)
+from google.colab import files
+import zipfile
+import os
+
+# Sube tu proyecto como ZIP
+uploaded = files.upload()
+
+# Descomprimir
+for filename in uploaded.keys():
+    with zipfile.ZipFile(filename, 'r') as zip_ref:
+        zip_ref.extractall('.')
+
+# CELDA 4: Construir APK
+!buildozer -v android debug
+
+# CELDA 5: Descargar APK
+from google.colab import files
+files.download('bin/*.apk')
