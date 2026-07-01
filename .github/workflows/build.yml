@@ -8,6 +8,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -16,19 +22,20 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq autoconf automake libtool pkg-config expect
+          sudo apt-get install -y -qq autoconf automake libtool pkg-config
           pip install buildozer cython==0.29.33
       
       - name: Build APK
+        env:
+          ANDROID_HOME: /home/runner/.buildozer/android/platform/android-sdk
         run: |
-          expect -c '
-          spawn buildozer android debug
-          expect {
-              "Accept?" { send "y\r"; exp_continue }
-              "y/N" { send "y\r"; exp_continue }
-              eof
-          }
-          '
+          # Pre-crear directorios de licencia
+          mkdir -p $ANDROID_HOME/licenses
+          echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb78af6dfcb131a6481e\n24333f8a63b6825ea9c5514f83c2829b004d1fee" > $ANDROID_HOME/licenses/android-sdk-license
+          echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd\n504667f4c0de7af1a06de9f4b1727b84351f2910" > $ANDROID_HOME/licenses/android-sdk-preview-license
+          
+          # Compilar
+          buildozer android debug
       
       - name: Upload APK
         uses: actions/upload-artifact@v4
