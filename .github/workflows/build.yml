@@ -16,18 +16,19 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq autoconf automake libtool pkg-config
+          sudo apt-get install -y -qq autoconf automake libtool pkg-config expect
           pip install buildozer cython==0.29.33
-      
-      - name: Accept Android licenses
-        run: |
-          yes | sdkmanager --licenses 2>/dev/null || true
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses 2>/dev/null || true
-          yes | ~/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager --licenses 2>/dev/null || true
       
       - name: Build APK
         run: |
-          buildozer android debug
+          expect -c '
+          spawn buildozer android debug
+          expect {
+              "Accept?" { send "y\r"; exp_continue }
+              "y/N" { send "y\r"; exp_continue }
+              eof
+          }
+          '
       
       - name: Upload APK
         uses: actions/upload-artifact@v4
