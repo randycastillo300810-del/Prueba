@@ -10,6 +10,7 @@ orientation = portrait
 fullscreen = 0
 android.permissions = INTERNET,READ_EXTERNAL_STORAGE,WRITE_EXTERNAL_STORAGE
 android.api = 33
+android.build_tools_version = 34.0.0
 android.minapi = 21
 android.ndk = 25c
 android.archs = arm64-v8a
