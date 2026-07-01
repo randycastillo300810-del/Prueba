@@ -1,14 +1,17 @@
 name: Build APK
 on:
-  push:
-    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Fix buildozer.spec BOM
+        run: |
+          sed -i '1s/^\xEF\xBB\xBF//' buildozer.spec
+          head -1 buildozer.spec
       
       - name: Setup Python
         uses: actions/setup-python@v5
