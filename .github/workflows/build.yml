@@ -25,16 +25,21 @@ jobs:
           sudo apt-get install -y -qq autoconf automake libtool pkg-config
           pip install buildozer cython==0.29.33
       
-      - name: Build APK
-        env:
-          ANDROID_HOME: /home/runner/.buildozer/android/platform/android-sdk
+      - name: Fix Android SDK
         run: |
-          # Pre-crear directorios de licencia
-          mkdir -p $ANDROID_HOME/licenses
-          echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb78af6dfcb131a6481e\n24333f8a63b6825ea9c5514f83c2829b004d1fee" > $ANDROID_HOME/licenses/android-sdk-license
-          echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd\n504667f4c0de7af1a06de9f4b1727b84351f2910" > $ANDROID_HOME/licenses/android-sdk-preview-license
-          
-          # Compilar
+          SDK_DIR=/home/runner/.buildozer/android/platform/android-sdk
+          mkdir -p $SDK_DIR
+          # Descargar command line tools
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
+          unzip -q commandlinetools-linux-9477386_latest.zip -d $SDK_DIR/cmdline-tools
+          mv $SDK_DIR/cmdline-tools/cmdline-tools $SDK_DIR/cmdline-tools/latest
+          # Aceptar licencias
+          yes | $SDK_DIR/cmdline-tools/latest/bin/sdkmanager --sdk_root=$SDK_DIR --licenses
+          # Instalar build-tools
+          $SDK_DIR/cmdline-tools/latest/bin/sdkmanager --sdk_root=$SDK_DIR "build-tools;34.0.0" "platforms;android-33"
+      
+      - name: Build APK
+        run: |
           buildozer android debug
       
       - name: Upload APK
